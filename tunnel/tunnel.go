@@ -7,7 +7,6 @@ import (
 	"net/netip"
 	"path/filepath"
 	"runtime"
-	"strconv"
 	"sync"
 	"time"
 
@@ -469,15 +468,14 @@ func match(metadata *C.Metadata) (C.Proxy, C.Rule, error) {
 		}
 
 		if !findProcessMode.Off() && !processFound && (findProcessMode.Always() || rule.ShouldFindProcess()) {
-			srcPort, err := strconv.ParseUint(metadata.SrcPort, 10, 16)
-			uid, path, err := P.FindProcessName(metadata.NetWork.String(), metadata.SrcIP, int(srcPort))
+			processFound = true
+			path, err := P.FindPackageName(metadata)
 			if err != nil {
 				log.Debugln("[Process] find process %s: %v", metadata.String(), err)
 			} else {
+				log.Debugln("[Process] %s from process %s", metadata.String(), path)
 				metadata.Process = filepath.Base(path)
 				metadata.ProcessPath = path
-				metadata.Uid = uid
-				processFound = true
 			}
 		}
 
